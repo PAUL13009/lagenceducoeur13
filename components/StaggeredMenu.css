@@ -1,0 +1,303 @@
+.staggered-menu-wrapper {
+  position: relative;
+  width: 100%;
+  z-index: 9999;
+  --sm-accent: #5227FF;
+}
+
+.staggered-menu-wrapper.fixed-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.sm-prelayers {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.sm-prelayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.staggered-menu-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+.sm-logo {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.sm-logo-img {
+  display: block;
+  height: auto;
+  max-width: 202.5px;
+  width: 135%;
+  transform: scale(1.35);
+  transform-origin: center;
+  will-change: auto;
+}
+
+.sm-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  color: var(--sm-toggle-color, #fff);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  pointer-events: auto;
+  position: absolute;
+  right: 2rem;
+}
+
+.sm-toggle:focus {
+  outline: none;
+}
+
+.sm-toggle-textWrap {
+  display: block;
+  overflow: hidden;
+  height: 1.2em;
+  line-height: 1.2;
+}
+
+.sm-toggle-textInner {
+  display: block;
+  will-change: transform;
+}
+
+.sm-toggle-line {
+  display: block;
+  line-height: 1.2;
+}
+
+.sm-icon {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.sm-icon-line {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  will-change: transform;
+}
+
+.sm-icon-line-v {
+  transform: rotate(90deg);
+}
+
+.staggered-menu-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(90vw, 480px);
+  background: #1a2332;
+  color: #fff;
+  z-index: 9999;
+  will-change: transform;
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: auto;
+}
+
+.staggered-menu-wrapper[data-position="left"] .staggered-menu-panel {
+  right: auto;
+  left: 0;
+}
+
+.staggered-menu-panel[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+.sm-panel-inner {
+  padding: 6rem 3rem 3rem;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sm-panel-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sm-panel-itemWrap {
+  margin: 0;
+  padding: 0;
+}
+
+.sm-panel-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  font-size: 2.5rem;
+  font-weight: 400;
+  line-height: 1.1;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: color 0.3s ease;
+  will-change: transform;
+  font-family: 'Playfair Display', serif;
+}
+
+.sm-panel-item:hover {
+  color: #D4AF37;
+}
+
+.sm-panel-item[data-index]::before {
+  display: none;
+}
+
+.sm-panel-itemLabel {
+  display: inline-block;
+  will-change: transform;
+}
+
+.sm-socials {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sm-socials-title {
+  display: none;
+}
+
+.sm-socials-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.sm-socials-item {
+  margin: 0;
+  padding: 0;
+}
+
+.sm-socials-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  will-change: transform, opacity;
+}
+
+.sm-socials-link:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.sm-socials-link:hover {
+  opacity: 1;
+  color: var(--sm-accent);
+}
+
+/* ============================================
+   STYLES MOBILES - PRIORITÉ ABSOLUE
+   S'applique à TOUTES les pages de manière identique
+   ============================================ */
+@media (max-width: 767.98px) {
+  /* Header - centré avec padding réduit */
+  .staggered-menu-wrapper .staggered-menu-header,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header {
+    justify-content: center !important;
+    padding: 1rem 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  /* Logo container - centré, pleine largeur */
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo {
+    justify-content: center !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    position: relative !important;
+  }
+  
+  /* Logo image - taille fixe 145px, centré */
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo .sm-logo-img,
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo img.sm-logo-img,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo .sm-logo-img,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo img.sm-logo-img {
+    max-width: 145px !important;
+    width: 145px !important;
+    min-width: 145px !important;
+    height: auto !important;
+    transform: scale(1) !important;
+    transform-origin: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+  
+  /* Bouton menu - positionné à droite, centré verticalement */
+  .staggered-menu-wrapper .staggered-menu-header .sm-toggle,
+  .staggered-menu-wrapper .staggered-menu-header button.sm-toggle,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-toggle,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header button.sm-toggle {
+    right: 1.5rem !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    z-index: 10001 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .staggered-menu-panel {
+    width: 100vw;
+  }
+
+  .sm-panel-inner {
+    padding: 5rem 2rem 2rem;
+  }
+
+  .sm-panel-item {
+    font-size: 2rem;
+  }
+}

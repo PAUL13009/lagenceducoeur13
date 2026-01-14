@@ -1,0 +1,320 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+/* Soulignement progressif de gauche à droite */
+.founder-link {
+  position: relative;
+  text-decoration: none;
+}
+
+.founder-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.5s ease-out;
+}
+
+.founder-link:hover::after {
+  width: 100%;
+}
+
+/* Mobile: Afficher le texte cliquable sur la photo du fondateur dès qu'elle est visible */
+@media (max-width: 767px) {
+  .founder-photo-container .founder-overlay {
+    background: rgba(0, 0, 0, 0.4);
+  }
+  
+  .founder-photo-container .founder-link {
+    opacity: 1;
+  }
+  
+  .vision-image-container .vision-link {
+    opacity: 1;
+  }
+}
+
+/* Animation de remplissage pour les boutons CTA hero */
+.hero-cta-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: white;
+  transition: left 0.4s ease-out;
+  z-index: -1;
+}
+
+.hero-cta-button:hover::before {
+  left: 0;
+}
+
+.hero-cta-button span,
+.hero-cta-button svg {
+  position: relative;
+  transition: color 0.3s ease-out;
+  transition-delay: 0.1s;
+}
+
+.hero-cta-button:hover span,
+.hero-cta-button:hover svg {
+  color: #D4AF37;
+}
+
+/* Animation de remplissage pour tous les boutons CTA */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #1a2332;
+  transition: left 0.4s ease-out;
+  z-index: -1;
+}
+
+.cta-button:hover::before {
+  left: 0;
+}
+
+.cta-button * {
+  position: relative;
+  transition: color 0.3s ease-out;
+  transition-delay: 0.1s;
+}
+
+.cta-button:hover,
+.cta-button:hover * {
+  color: #D4AF37 !important;
+}
+
+/* Mobile: Déclencher l'effet automatiquement quand le bouton devient visible */
+@media (max-width: 767px) {
+  .cta-button.cta-visible::before {
+    left: 0;
+    animation: cta-fill 0.4s ease-out;
+  }
+  
+  .cta-button.cta-visible,
+  .cta-button.cta-visible * {
+    color: #D4AF37 !important;
+  }
+  
+  .cta-button.cta-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* Afficher la flèche quand le bouton devient visible */
+  .cta-button.cta-visible svg {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+  
+  @keyframes cta-fill {
+    from {
+      left: -100%;
+    }
+    to {
+      left: 0;
+    }
+  }
+}
+
+/* Mobile: Déclencher l'effet automatiquement pour les boutons hero */
+@media (max-width: 767px) {
+  .hero-cta-button.cta-visible::before {
+    left: 0;
+    animation: hero-cta-fill 0.4s ease-out;
+  }
+  
+  .hero-cta-button.cta-visible span,
+  .hero-cta-button.cta-visible svg {
+    color: #D4AF37;
+  }
+  
+  /* Afficher la flèche quand le bouton hero devient visible */
+  .hero-cta-button.cta-visible svg {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+  
+  @keyframes hero-cta-fill {
+    from {
+      left: -100%;
+    }
+    to {
+      left: 0;
+    }
+  }
+}
+
+/* Animation de remplissage automatique pour les cartes */
+.animated-card {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.animated-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #1a2332;
+  z-index: -1;
+  transition: left 0.6s ease-out;
+}
+
+.animated-card.card-animated::before {
+  left: 0;
+}
+
+.animated-card p,
+.animated-card span {
+  position: relative;
+  transition: color 0.4s ease-out;
+  transition-delay: 0.2s;
+}
+
+.animated-card.card-animated p,
+.animated-card.card-animated span {
+  color: #D4AF37 !important;
+}
+
+/* Animation de remplissage automatique pour les cartes rouges */
+.animated-card-red {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.animated-card-red::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #dc2626;
+  z-index: -1;
+  transition: left 0.6s ease-out;
+}
+
+.animated-card-red.card-animated::before {
+  left: 0;
+}
+
+.animated-card-red p {
+  position: relative;
+  transition: color 0.4s ease-out;
+  transition-delay: 0.2s;
+}
+
+.animated-card-red.card-animated p {
+  color: white !important;
+}
+
+/* STYLES MOBILES POUR STAGGERED MENU - PRIORITÉ ABSOLUE */
+/* Garantir que le logo et le bouton menu sont identiques sur TOUTES les pages en mobile */
+@media (max-width: 767.98px) {
+  /* Header - centré avec padding réduit */
+  .staggered-menu-wrapper .staggered-menu-header,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header {
+    justify-content: center !important;
+    padding: 1rem 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  /* Logo container - centré, pleine largeur */
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo {
+    justify-content: center !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    position: relative !important;
+  }
+  
+  /* Logo image - taille fixe 145px, centré */
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo .sm-logo-img,
+  .staggered-menu-wrapper .staggered-menu-header .sm-logo img.sm-logo-img,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo .sm-logo-img,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-logo img.sm-logo-img {
+    max-width: 145px !important;
+    width: 145px !important;
+    min-width: 145px !important;
+    height: auto !important;
+    transform: scale(1) !important;
+    transform-origin: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+  
+  /* Bouton menu - positionné à droite, centré verticalement */
+  .staggered-menu-wrapper .staggered-menu-header .sm-toggle,
+  .staggered-menu-wrapper .staggered-menu-header button.sm-toggle,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header .sm-toggle,
+  .staggered-menu-wrapper.fixed-wrapper .staggered-menu-header button.sm-toggle {
+    right: 1.5rem !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    z-index: 10001 !important;
+  }
+}
