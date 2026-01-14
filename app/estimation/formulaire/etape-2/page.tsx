@@ -345,7 +345,7 @@ export default function FormulaireEstimationEtape2Page() {
         message_libre: formData.messageLibre || null,
         
         confirmation: formData.confirmation,
-        status: 'pending',
+        status: 'pending' as const,
       };
 
       // Envoyer les données à Firebase
