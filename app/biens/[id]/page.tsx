@@ -18,7 +18,15 @@ export default function PropertyDetailPage() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const data = await getProperty(params.id);
+        // Convertir params.id en string (peut être string | string[])
+        const propertyId = Array.isArray(params.id) ? params.id[0] : params.id;
+        
+        if (!propertyId) {
+          router.push('/catalogue');
+          return;
+        }
+
+        const data = await getProperty(propertyId);
 
         if (!data) {
           console.error('Bien non trouvé');
