@@ -163,7 +163,7 @@ export default function PropertyDetailPage() {
 
                 {/* Dots indicator */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                  {images.map((_, index) => (
+                  {images.map((_: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
