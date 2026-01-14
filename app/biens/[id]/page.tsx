@@ -108,7 +108,7 @@ export default function PropertyDetailPage() {
       <div className="min-h-screen flex flex-col bg-white property-detail-page">
         <StaggeredMenu
           position="right"
-          menuItems={menuItems}
+          items={menuItems}
           socialItems={socialItems}
         />
 
