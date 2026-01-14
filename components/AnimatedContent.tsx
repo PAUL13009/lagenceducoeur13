@@ -112,7 +112,7 @@ const AnimatedContent = ({
       if (cardElement) {
         cardElement.classList.add('card-animated');
       }
-    }, null, '-=0.2'); // Démarrer légèrement avant la fin de l'animation
+    }, undefined, '-=0.2'); // Démarrer légèrement avant la fin de l'animation
 
     const st = ScrollTrigger.create({
       trigger: el,
