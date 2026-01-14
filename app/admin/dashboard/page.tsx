@@ -96,11 +96,6 @@ export default function AdminDashboard() {
       
       setUser(user);
       setLoading(false);
-      
-      // Charger les propriétés une fois authentifié
-      if (activeSection === 'vente') {
-        fetchProperties();
-      }
     };
 
     checkAuth();
