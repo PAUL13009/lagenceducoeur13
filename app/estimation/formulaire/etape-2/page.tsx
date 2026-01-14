@@ -322,12 +322,12 @@ export default function FormulaireEstimationEtape2Page() {
         annee_derniere_renovation: formData.anneeDerniereRenovation ? parseInt(formData.anneeDerniereRenovation) : null,
         montant_derniere_renovation: formData.montantDerniereRenovation ? parseInt(formData.montantDerniereRenovation) : null,
         prestations: formData.prestations,
-        autres_prestations: formData.autresPrestations || null,
+        autres_prestations: formData.autresPrestations || undefined,
         
         exposition_principale: formData.expositionPrincipale,
-        vis_a_vis: formData.visAVis || null,
-        nuisances: formData.nuisances || null,
-        autres_nuisances: formData.autresNuisances || null,
+        vis_a_vis: formData.visAVis || undefined,
+        nuisances: formData.nuisances || undefined,
+        autres_nuisances: formData.autresNuisances || undefined,
         
         bien_occupe: formData.bienOccupe,
         loyer_actuel: formData.loyerActuel ? parseInt(formData.loyerActuel) : null,
@@ -337,12 +337,12 @@ export default function FormulaireEstimationEtape2Page() {
         
         motif_vente: formData.motifVente,
         delai_vente: formData.delaiVente,
-        idee_prix: formData.ideePrix || null,
+        idee_prix: formData.ideePrix || undefined,
         prix_estime: formData.prixEstime ? parseInt(formData.prixEstime) : null,
         
         prix_marche: formData.prixMarche,
         
-        message_libre: formData.messageLibre || null,
+        message_libre: formData.messageLibre || undefined,
         
         confirmation: formData.confirmation,
         status: 'pending' as const,
