@@ -361,7 +361,14 @@ export default function FormulaireGestionEtape2Page() {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={handleSubmit} className="space-y-8">
+              <form 
+                onSubmit={(e) => {
+                  console.log('Form onSubmit déclenché');
+                  handleSubmit(e);
+                }} 
+                className="space-y-8"
+                noValidate
+              >
                 
                 {/* 1. Informations générales sur le bien */}
                 <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
