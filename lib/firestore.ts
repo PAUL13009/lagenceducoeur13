@@ -150,7 +150,14 @@ const convertTimestamps = (data: any): any => {
 
 // Fonction utilitaire pour préparer les données avant l'insertion
 const prepareDataForInsert = (data: any): any => {
-  const prepared = { ...data };
+  const prepared: any = {};
+  
+  // Copier uniquement les champs qui ne sont pas undefined
+  Object.keys(data).forEach(key => {
+    if (data[key] !== undefined) {
+      prepared[key] = data[key];
+    }
+  });
   
   // Ajouter les timestamps
   prepared.created_at = Timestamp.now();
@@ -164,6 +171,11 @@ const prepareDataForInsert = (data: any): any => {
   // S'assurer que les tableaux sont bien des tableaux
   if (prepared.prestations && !Array.isArray(prepared.prestations)) {
     prepared.prestations = [];
+  }
+  
+  // S'assurer que les tableaux sont bien des tableaux pour equipements aussi
+  if (prepared.equipements && !Array.isArray(prepared.equipements)) {
+    prepared.equipements = [];
   }
   
   return prepared;
