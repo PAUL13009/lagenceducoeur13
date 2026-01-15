@@ -228,7 +228,20 @@ export default function FormulaireGestionEtape2Page() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm() || !etape1Data) {
+    console.log('handleSubmit appelé');
+    console.log('etape1Data:', etape1Data);
+    console.log('formData:', formData);
+    
+    const isValid = validateForm();
+    console.log('Validation:', isValid);
+    console.log('Errors:', errors);
+    
+    if (!isValid || !etape1Data) {
+      console.log('Validation échouée ou etape1Data manquant');
+      if (!etape1Data) {
+        alert('Les données de l\'étape 1 sont manquantes. Veuillez recommencer depuis le début.');
+        router.push('/services/gestion/formulaire');
+      }
       return;
     }
 
@@ -252,31 +265,33 @@ export default function FormulaireGestionEtape2Page() {
         // Données de l'étape 2
         type_bien: formData.typeBien,
         adresse: formData.adresse,
-        surface_habitable: parseInt(formData.surfaceHabitable),
-        nombre_pieces: parseInt(formData.nombrePieces),
-        nombre_chambres: parseInt(formData.nombreChambres),
+        surface_habitable: formData.surfaceHabitable ? parseInt(formData.surfaceHabitable) : null,
+        nombre_pieces: formData.nombrePieces ? parseInt(formData.nombrePieces) : null,
+        nombre_chambres: formData.nombreChambres ? parseInt(formData.nombreChambres) : null,
         etage: formData.etage,
         nombre_etages: formData.nombreEtages ? parseInt(formData.nombreEtages) : null,
         ascenseur: formData.ascenseur,
         
         etat_general: formData.etatGeneral,
-        equipements: formData.equipements,
-        autres_equipements: formData.autresEquipements || null,
+        equipements: formData.equipements || [],
+        autres_equipements: formData.autresEquipements || undefined,
         
         bien_loue: formData.bienLoue,
         loyer_actuel: formData.bienLoue === 'oui' && formData.loyerActuel ? parseInt(formData.loyerActuel) : null,
-        type_bail: formData.bienLoue === 'oui' ? formData.typeBail : null,
-        fin_bail: formData.finBail || null,
+        type_bail: formData.bienLoue === 'oui' ? formData.typeBail : undefined,
+        fin_bail: formData.finBail || undefined,
         
         charges: formData.charges ? parseInt(formData.charges) : null,
         taxe_fonciere: formData.taxeFonciere ? parseInt(formData.taxeFonciere) : null,
         loyers_impayes: formData.loyersImpayes,
         
-        attentes_specifiques: formData.attentesSpecifiques || null,
+        attentes_specifiques: formData.attentesSpecifiques || undefined,
         
         confirmation: formData.confirmation,
-        status: 'pending',
+        status: 'pending' as const,
       };
+
+      console.log('Données à envoyer:', completeData);
 
       // Envoyer les données à Firebase
       const requestId = await createGestionRequest(completeData);
