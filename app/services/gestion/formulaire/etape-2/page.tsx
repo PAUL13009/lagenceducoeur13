@@ -854,11 +854,15 @@ export default function FormulaireGestionEtape2Page() {
                 {/* Bouton de validation */}
                 <div className="text-center space-y-4">
                   <button
-                    type="submit"
+                    type="button"
                     disabled={loading}
-                    onClick={(e) => {
-                      console.log('Bouton cliqué');
-                      // Ne pas empêcher le submit, laisser le formulaire gérer
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Bouton cliqué directement');
+                      // Appeler handleSubmit directement
+                      const formEvent = new Event('submit', { bubbles: true, cancelable: true }) as any;
+                      await handleSubmit(formEvent);
                     }}
                     className="cta-button group bg-transparent border-2 px-8 py-4 rounded-lg font-semibold shadow-lg transition-all flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderColor: '#1a2332', color: '#1a2332' }}
