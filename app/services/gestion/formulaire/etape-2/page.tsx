@@ -288,18 +288,18 @@ export default function FormulaireGestionEtape2Page() {
         
         etat_general: formData.etatGeneral,
         equipements: formData.equipements || [],
-        autres_equipements: formData.autresEquipements || undefined,
+        ...(formData.autresEquipements ? { autres_equipements: formData.autresEquipements } : {}),
         
         bien_loue: formData.bienLoue,
         loyer_actuel: formData.bienLoue === 'oui' && formData.loyerActuel ? parseInt(formData.loyerActuel) : null,
-        type_bail: formData.bienLoue === 'oui' ? formData.typeBail : undefined,
-        fin_bail: formData.finBail || undefined,
+        ...(formData.bienLoue === 'oui' && formData.typeBail ? { type_bail: formData.typeBail } : {}),
+        ...(formData.finBail ? { fin_bail: formData.finBail } : {}),
         
         charges: formData.charges ? parseInt(formData.charges) : null,
         taxe_fonciere: formData.taxeFonciere ? parseInt(formData.taxeFonciere) : null,
         loyers_impayes: formData.loyersImpayes,
         
-        attentes_specifiques: formData.attentesSpecifiques || undefined,
+        ...(formData.attentesSpecifiques ? { attentes_specifiques: formData.attentesSpecifiques } : {}),
         
         confirmation: formData.confirmation,
         status: 'pending' as const,
