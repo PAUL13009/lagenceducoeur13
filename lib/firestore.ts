@@ -449,8 +449,26 @@ export const gestionRequestsCollection = 'gestion_requests';
 
 export async function createGestionRequest(data: Omit<GestionRequest, 'id' | 'created_at' | 'updated_at'>): Promise<string> {
   try {
-    const preparedData = prepareDataForInsert(data);
-    const docRef = await addDoc(collection(db, gestionRequestsCollection), preparedData);
+    // Nettoyer les undefined avant de préparer les données
+    const cleanedData: any = {};
+    Object.keys(data).forEach(key => {
+      if (data[key] !== undefined) {
+        cleanedData[key] = data[key];
+      }
+    });
+    
+    const preparedData = prepareDataForInsert(cleanedData);
+    
+    // Vérification finale : supprimer tous les undefined restants
+    const finalData: any = {};
+    Object.keys(preparedData).forEach(key => {
+      if (preparedData[key] !== undefined) {
+        finalData[key] = preparedData[key];
+      }
+    });
+    
+    console.log('Données finales avant insertion:', finalData);
+    const docRef = await addDoc(collection(db, gestionRequestsCollection), finalData);
     return docRef.id;
   } catch (error: any) {
     console.error('Erreur lors de la création de la demande de gestion:', error);
