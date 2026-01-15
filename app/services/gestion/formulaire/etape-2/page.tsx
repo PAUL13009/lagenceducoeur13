@@ -227,21 +227,35 @@ export default function FormulaireGestionEtape2Page() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     console.log('handleSubmit appelé');
     console.log('etape1Data:', etape1Data);
     console.log('formData:', formData);
     
+    if (!etape1Data) {
+      console.error('etape1Data est null ou undefined');
+      alert('Les données de l\'étape 1 sont manquantes. Veuillez recommencer depuis le début.');
+      router.push('/services/gestion/formulaire');
+      return;
+    }
+    
     const isValid = validateForm();
     console.log('Validation:', isValid);
     console.log('Errors:', errors);
     
-    if (!isValid || !etape1Data) {
-      console.log('Validation échouée ou etape1Data manquant');
-      if (!etape1Data) {
-        alert('Les données de l\'étape 1 sont manquantes. Veuillez recommencer depuis le début.');
-        router.push('/services/gestion/formulaire');
+    if (!isValid) {
+      console.log('Validation échouée - erreurs:', errors);
+      // Scroller vers la première erreur
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (errorElement as HTMLElement).focus();
+        }
       }
+      alert('Veuillez corriger les erreurs dans le formulaire avant de soumettre.');
       return;
     }
 
@@ -304,7 +318,8 @@ export default function FormulaireGestionEtape2Page() {
       router.push('/services/gestion/confirmation');
     } catch (error: any) {
       console.error('Erreur inattendue:', error);
-      alert('Une erreur est survenue lors de l\'envoi de votre demande. Veuillez réessayer.');
+      console.error('Détails de l\'erreur:', error.message, error.stack);
+      alert(`Une erreur est survenue lors de l'envoi de votre demande: ${error.message || 'Erreur inconnue'}. Veuillez réessayer.`);
       setLoading(false);
     }
   };
