@@ -152,10 +152,21 @@ const convertTimestamps = (data: any): any => {
 const prepareDataForInsert = (data: any): any => {
   const prepared: any = {};
   
-  // Copier uniquement les champs qui ne sont pas undefined
+  // Copier uniquement les champs qui ne sont pas undefined ou null (pour les strings optionnels)
   Object.keys(data).forEach(key => {
-    if (data[key] !== undefined) {
-      prepared[key] = data[key];
+    const value = data[key];
+    // Ignorer undefined, mais garder null pour les nombres
+    if (value !== undefined) {
+      // Si c'est un objet (mais pas un tableau, Date, ou Timestamp), nettoyer récursivement
+      if (value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof Timestamp)) {
+        const cleaned = prepareDataForInsert(value);
+        // Ne pas ajouter si l'objet nettoyé est vide
+        if (Object.keys(cleaned).length > 0) {
+          prepared[key] = cleaned;
+        }
+      } else {
+        prepared[key] = value;
+      }
     }
   });
   
