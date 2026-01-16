@@ -559,6 +559,18 @@ export async function getAllProperties(filters?: { type?: string }): Promise<any
 
 export async function createProperty(data: any): Promise<string> {
   try {
+    if (!data.slug && data.type && data.property_type && data.city && data.district && data.rooms && data.area) {
+      const { generateSlug } = await import('./slug');
+      data.slug = generateSlug({
+        type: data.type,
+        property_type: data.property_type,
+        city: data.city,
+        district: data.district,
+        rooms: data.rooms,
+        area: data.area,
+      });
+    }
+    
     const preparedData = prepareDataForInsert(data);
     const docRef = await addDoc(collection(db, propertiesCollection), preparedData);
     return docRef.id;
@@ -570,7 +582,8 @@ export async function createProperty(data: any): Promise<string> {
 
 export async function updateProperty(id: string, data: Partial<any>): Promise<void> {
   try {
-    const preparedData = prepareDataForUpdate(data);
+    const { slug, ...dataWithoutSlug } = data;
+    const preparedData = prepareDataForUpdate(dataWithoutSlug);
     const docRef = doc(db, propertiesCollection, id);
     await updateDoc(docRef, preparedData);
   } catch (error: any) {

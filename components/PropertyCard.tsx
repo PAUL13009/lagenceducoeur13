@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { buildPropertyUrl } from "@/lib/slug";
 
 interface PropertyCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface PropertyCardProps {
   rooms: number;
   image: string;
   type: "acheter" | "louer";
+  slug?: string;
 }
 
 export default function PropertyCard({
@@ -21,6 +23,7 @@ export default function PropertyCard({
   rooms,
   image,
   type,
+  slug,
 }: PropertyCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fr-FR", {
@@ -48,7 +51,7 @@ export default function PropertyCard({
     : placeholderImages[id] || defaultImages[parseInt(id) % defaultImages.length];
 
   return (
-    <Link href={`/biens/${id}`} className="group">
+    <Link href={buildPropertyUrl(slug, id)} className="group">
       <div className="bg-white shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 aspect-square relative transform hover:scale-105">
         {/* Image d'illustration temporaire */}
           <Image

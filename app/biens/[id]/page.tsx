@@ -5,8 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getProperty } from '@/lib/firestore';
+import { extractIdFromSlug, buildPropertyUrl } from '@/lib/slug';
 import StaggeredMenu from '@/components/StaggeredMenu';
-import Footer from '@/components/Footer';
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -14,12 +14,19 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>('description');
 
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        // Convertir params.id en string (peut être string | string[])
-        const propertyId = Array.isArray(params.id) ? params.id[0] : params.id;
+        const slugId = Array.isArray(params.id) ? params.id[0] : params.id;
+        
+        if (!slugId) {
+          router.push('/catalogue');
+          return;
+        }
+
+        const propertyId = extractIdFromSlug(slugId);
         
         if (!propertyId) {
           router.push('/catalogue');
@@ -47,6 +54,19 @@ export default function PropertyDetailPage() {
       fetchProperty();
     }
   }, [params.id, router]);
+
+  useEffect(() => {
+    if (property?.slug && property?.id) {
+      const canonicalUrl = `${window.location.origin}${buildPropertyUrl(property.slug, property.id)}`;
+      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', 'canonical');
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', canonicalUrl);
+    }
+  }, [property]);
 
   if (loading) {
     return (
@@ -106,11 +126,13 @@ export default function PropertyDetailPage() {
         }
       `}} />
       <div className="min-h-screen flex flex-col bg-white property-detail-page">
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-        />
+        <div className="hidden md:block">
+          <StaggeredMenu
+            position="right"
+            items={menuItems}
+            socialItems={socialItems}
+          />
+        </div>
 
       <main className="flex-grow pt-2">
         <div className="container mx-auto px-4 py-4">
@@ -127,61 +149,108 @@ export default function PropertyDetailPage() {
             </Link>
           </div>
 
-          {/* Image Carousel */}
-          <div className="mb-8 relative">
-            <div className="relative w-full h-[500px] md:h-[600px] rounded-lg overflow-hidden">
-              <Image
-                src={images[currentImageIndex]}
-                alt={property.title}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            
-            {images.length > 1 && (
-              <>
-                {/* Navigation buttons */}
-                <button
-                  onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
-                  aria-label="Image précédente"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
-                  aria-label="Image suivante"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                {/* Dots indicator */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                  {images.map((_: string, index: number) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                      aria-label={`Image ${index + 1}`}
-                    />
-                  ))}
+          {/* Layout: Carrousel à gauche, Description à droite */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Carrousel de photos - Colonne gauche */}
+            <div className="space-y-4">
+              {/* Version Mobile - Carrousel avec indicateurs */}
+              <div className="relative w-full md:hidden">
+                <div className="relative w-full h-[400px] overflow-hidden">
+                  <Image
+                    src={images[currentImageIndex]}
+                    alt={`${property.title} - Photo ${currentImageIndex + 1}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
                 </div>
-              </>
-            )}
-          </div>
+                {images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                    {images.map((_: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? 'bg-white'
+                            : 'bg-white/50'
+                        }`}
+                        aria-label={`Photo ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
+              {/* Version Desktop - Grande photo avec miniatures */}
+              <div className="hidden md:block space-y-4">
+                <div className="relative w-full h-[600px] overflow-hidden">
+                  <Image
+                    src={images[currentImageIndex]}
+                    alt={`${property.title} - Photo ${currentImageIndex + 1}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                
+                {images.length > 1 && (
+                  <div className="grid grid-cols-5 gap-2">
+                    {images.map((image: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`relative w-full aspect-square overflow-hidden transition-all ${
+                          index === currentImageIndex 
+                            ? 'border-2 border-[#1a2332]' 
+                            : 'border-2 border-transparent opacity-70 hover:opacity-100 hover:border-gray-300'
+                        }`}
+                        aria-label={`Voir la photo ${index + 1}`}
+                      >
+                        <Image
+                          src={image}
+                          alt={`${property.title} - Miniature ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Section Contact - Desktop uniquement */}
+              <div className="hidden md:block mt-8 p-6 border-2 text-center" style={{ borderColor: '#1a2332', backgroundColor: '#1a2332' }}>
+                <h3 className="text-xl font-normal mb-4 uppercase tracking-wider text-white" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em' }}>
+                  Intéressé par ce bien ?
+                </h3>
+                <p className="text-white mb-6">
+                  Contactez <span style={{ color: '#D4AF37' }}>l'Agence du Cœur</span> et programmez une visite !
+                </p>
+                <div className="space-y-4 flex flex-col items-center">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <a href="tel:+33663706051" className="text-white hover:opacity-80 transition-colors">
+                      +33 6 63 70 60 51
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <a href="mailto:immo@lagenceducoeur.com" className="text-white hover:opacity-80 transition-colors">
+                      immo@lagenceducoeur.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Description et onglets - Colonne droite */}
+            <div>
               {/* Header - Titre, localisation, prix */}
               <div className="mb-6">
                 <div className="mb-3">
@@ -203,49 +272,103 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
 
-              {/* Description */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1a2332' }}>
-                  Description
-                </h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {property.description}
+              {/* Onglets */}
+              <div className="border-b-2 mb-6" style={{ borderColor: '#1a2332' }}>
+                <div className="flex flex-wrap gap-4">
+                  <button
+                    onClick={() => setActiveTab('description')}
+                    className={`pb-3 px-2 font-semibold transition-colors ${
+                      activeTab === 'description' 
+                        ? 'border-b-2' 
+                        : 'text-gray-600 hover:text-[#1a2332]'
+                    }`}
+                    style={activeTab === 'description' ? { borderColor: '#1a2332', color: '#1a2332' } : {}}
+                  >
+                    Description
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('caracteristiques')}
+                    className={`pb-3 px-2 font-semibold transition-colors ${
+                      activeTab === 'caracteristiques' 
+                        ? 'border-b-2' 
+                        : 'text-gray-600 hover:text-[#1a2332]'
+                    }`}
+                    style={activeTab === 'caracteristiques' ? { borderColor: '#1a2332', color: '#1a2332' } : {}}
+                  >
+                    Caractéristiques
+                  </button>
+                  {property.characteristics && property.characteristics.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('prestations')}
+                      className={`pb-3 px-2 font-semibold transition-colors ${
+                        activeTab === 'prestations' 
+                          ? 'border-b-2' 
+                          : 'text-gray-600 hover:text-[#1a2332]'
+                      }`}
+                      style={activeTab === 'prestations' ? { borderColor: '#1a2332', color: '#1a2332' } : {}}
+                    >
+                      Prestations
+                    </button>
+                  )}
+                  {(property.dpe_energie || property.dpe_climat) && (
+                    <button
+                      onClick={() => setActiveTab('dpe')}
+                      className={`pb-3 px-2 font-semibold transition-colors ${
+                        activeTab === 'dpe' 
+                          ? 'border-b-2' 
+                          : 'text-gray-600 hover:text-[#1a2332]'
+                      }`}
+                      style={activeTab === 'dpe' ? { borderColor: '#1a2332', color: '#1a2332' } : {}}
+                    >
+                      DPE
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setActiveTab('infos')}
+                    className={`pb-3 px-2 font-semibold transition-colors ${
+                      activeTab === 'infos' 
+                        ? 'border-b-2' 
+                        : 'text-gray-600 hover:text-[#1a2332]'
+                    }`}
+                    style={activeTab === 'infos' ? { borderColor: '#1a2332', color: '#1a2332' } : {}}
+                  >
+                    Informations
+                  </button>
                 </div>
-              </section>
+              </div>
 
-              {/* Caractéristiques principales */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1a2332' }}>
-                  Caractéristiques principales
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="border-2 rounded-lg p-4" style={{ borderColor: '#1a2332' }}>
-                    <p className="text-sm text-gray-600 mb-1">Chambres</p>
-                    <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
-                      {property.bedrooms}
-                    </p>
+              {/* Contenu des onglets */}
+              <div className="min-h-[400px]">
+                {activeTab === 'description' && (
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {property.description}
                   </div>
-                  <div className="border-2 rounded-lg p-4" style={{ borderColor: '#1a2332' }}>
-                    <p className="text-sm text-gray-600 mb-1">Surface habitable</p>
-                    <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
-                      {property.area} m²
-                    </p>
-                  </div>
-                  <div className="border-2 rounded-lg p-4" style={{ borderColor: '#1a2332' }}>
-                    <p className="text-sm text-gray-600 mb-1">Nombre de pièces</p>
-                    <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
-                      {property.rooms}
-                    </p>
-                  </div>
-                </div>
-              </section>
+                )}
 
-              {/* Prestations */}
-              {property.characteristics && property.characteristics.length > 0 && (
-                <section>
-                  <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1a2332' }}>
-                    Prestations
-                  </h2>
+                {activeTab === 'caracteristiques' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border-2 p-4" style={{ borderColor: '#1a2332' }}>
+                      <p className="text-sm text-gray-600 mb-1">Chambres</p>
+                      <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
+                        {property.bedrooms}
+                      </p>
+                    </div>
+                    <div className="border-2 p-4" style={{ borderColor: '#1a2332' }}>
+                      <p className="text-sm text-gray-600 mb-1">Surface habitable</p>
+                      <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
+                        {property.area} m²
+                      </p>
+                    </div>
+                    <div className="border-2 p-4" style={{ borderColor: '#1a2332' }}>
+                      <p className="text-sm text-gray-600 mb-1">Nombre de pièces</p>
+                      <p className="text-2xl font-semibold" style={{ color: '#1a2332' }}>
+                        {property.rooms}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'prestations' && property.characteristics && property.characteristics.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {property.characteristics.map((char: string, index: number) => (
                       <div key={index} className="flex items-center gap-2">
@@ -256,18 +379,12 @@ export default function PropertyDetailPage() {
                       </div>
                     ))}
                   </div>
-                </section>
-              )}
+                )}
 
-              {/* DPE */}
-              {(property.dpe_energie || property.dpe_climat) && (
-                <section>
-                  <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1a2332' }}>
-                    Diagnostic de Performance Énergétique (DPE)
-                  </h2>
+                {activeTab === 'dpe' && (property.dpe_energie || property.dpe_climat) && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {property.dpe_energie && (
-                      <div className="border-2 rounded-lg p-4" style={{ borderColor: '#1a2332' }}>
+                      <div className="border-2 p-4" style={{ borderColor: '#1a2332' }}>
                         <p className="text-sm text-gray-600 mb-2">Consommation énergétique</p>
                         <p className="text-3xl font-semibold" style={{ color: '#1a2332' }}>
                           {property.dpe_energie}
@@ -275,7 +392,7 @@ export default function PropertyDetailPage() {
                       </div>
                     )}
                     {property.dpe_climat && (
-                      <div className="border-2 rounded-lg p-4" style={{ borderColor: '#1a2332' }}>
+                      <div className="border-2 p-4" style={{ borderColor: '#1a2332' }}>
                         <p className="text-sm text-gray-600 mb-2">Émissions de GES</p>
                         <p className="text-3xl font-semibold" style={{ color: '#1a2332' }}>
                           {property.dpe_climat}
@@ -283,78 +400,61 @@ export default function PropertyDetailPage() {
                       </div>
                     )}
                   </div>
-                </section>
-              )}
+                )}
 
-              {/* Informations complémentaires */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1a2332' }}>
-                  Informations complémentaires
-                </h2>
-                <div className="space-y-3 text-gray-700">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Type de bien:</span>
-                    <span className="capitalize">{property.property_type}</span>
+                {activeTab === 'infos' && (
+                  <div className="space-y-3 text-gray-700">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Type de bien:</span>
+                      <span className="capitalize">{property.property_type}</span>
+                    </div>
+                    {property.charges && (
+                      <div className="flex justify-between">
+                        <span className="font-medium">Charges:</span>
+                        <span>{property.charges} €/mois</span>
+                      </div>
+                    )}
+                    {property.taxe_fonciere && (
+                      <div className="flex justify-between">
+                        <span className="font-medium">Taxe foncière:</span>
+                        <span>{property.taxe_fonciere} €/an</span>
+                      </div>
+                    )}
                   </div>
-                  {property.charges && (
-                    <div className="flex justify-between">
-                      <span className="font-medium">Charges:</span>
-                      <span>{property.charges} €/mois</span>
-                    </div>
-                  )}
-                  {property.taxe_fonciere && (
-                    <div className="flex justify-between">
-                      <span className="font-medium">Taxe foncière:</span>
-                      <span>{property.taxe_fonciere} €/an</span>
-                    </div>
-                  )}
-                </div>
-              </section>
+                )}
+              </div>
             </div>
+          </div>
 
-            {/* Right Column - Contact */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 rounded-lg p-6" style={{ backgroundColor: '#1a2332' }}>
-                <h2 className="text-2xl font-normal mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: 'white' }}>
-                  Contact
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5" style={{ color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <a href="tel:+33663706051" className="text-white hover:underline">
-                      +33 6 63 70 60 51
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5" style={{ color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <a href="mailto:immo@lagenceducoeur.com" className="text-white hover:underline">
-                      immo@lagenceducoeur.com
-                    </a>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 mt-1" style={{ color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <p className="text-white">
-                      Marseille, France
-                    </p>
-                  </div>
-                </div>
-                <button className="w-full mt-6 py-3 px-6 rounded-lg font-semibold transition-all hover:opacity-90" style={{ backgroundColor: '#D4AF37', color: '#1a2332' }}>
-                  Demander une visite
-                </button>
+          {/* Section Contact Mobile - En bas de la page */}
+          <div className="md:hidden mt-8 mb-8 p-6 border-2 text-center" style={{ borderColor: '#1a2332', backgroundColor: '#1a2332' }}>
+            <h3 className="text-xl font-normal mb-4 uppercase tracking-wider text-white" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em' }}>
+              Intéressé par ce bien ?
+            </h3>
+            <p className="text-white mb-6">
+              Contactez <span style={{ color: '#D4AF37' }}>l'Agence du Cœur</span> et programmez une visite !
+            </p>
+            <div className="space-y-4 flex flex-col items-center">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <a href="tel:+33663706051" className="text-white hover:opacity-80 transition-colors">
+                  +33 6 63 70 60 51
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <a href="mailto:immo@lagenceducoeur.com" className="text-white hover:opacity-80 transition-colors">
+                  immo@lagenceducoeur.com
+                </a>
               </div>
             </div>
           </div>
         </div>
       </main>
-
-      <Footer />
       </div>
     </>
   );

@@ -44,6 +44,7 @@ export default function Home() {
             image: property.main_photo || property.photos?.[0] || '/property1.jpg',
             type: property.type || 'acheter',
             sold: property.sold || false,
+            slug: property.slug || undefined,
           }));
           setFeaturedProperties(formattedProperties);
         }

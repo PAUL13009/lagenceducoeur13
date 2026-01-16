@@ -49,6 +49,7 @@ export default function CataloguePage() {
             type: property.type || 'acheter',
             propertyType: property.property_type || 'appartement',
             sold: property.sold || false,
+            slug: property.slug || undefined,
           }));
           setAllProperties(formattedProperties);
         }
