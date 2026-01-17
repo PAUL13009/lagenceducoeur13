@@ -6,12 +6,16 @@ interface PropertyCardProps {
   id: string;
   title: string;
   location: string;
-  price: number;
+  price: number | null;
   area: number;
   rooms: number;
   image: string;
   type: "acheter" | "louer";
   slug?: string;
+  status?: "à_vendre" | "sous_compromis" | "vendu";
+  sold?: boolean;
+  priceOnDemand?: boolean;
+  bathrooms?: number | null;
 }
 
 export default function PropertyCard({
@@ -24,6 +28,10 @@ export default function PropertyCard({
   image,
   type,
   slug,
+  status,
+  sold,
+  priceOnDemand,
+  bathrooms,
 }: PropertyCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fr-FR", {
@@ -32,6 +40,8 @@ export default function PropertyCard({
       maximumFractionDigits: 0,
     }).format(price);
   };
+  
+  const displayPrice = priceOnDemand || price === null ? "Sur demande" : formatPrice(price);
 
   // Images temporaires d'illustration (variées selon l'ID)
   const placeholderImages: { [key: string]: string } = {
@@ -66,27 +76,58 @@ export default function PropertyCard({
         {/* Overlay gradient en bas pour la lisibilité des informations */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         
-        {/* Étiquette À vendre / À louer */}
+        {/* Étiquette À vendre / À louer / Sous compromis / Vendu */}
         <div className="absolute top-4 left-4 z-20">
-          <span className="text-white px-3 py-3 text-sm font-semibold inline-block" style={{ backgroundColor: '#1a2332' }}>
-            {type === "acheter" ? "À vendre" : "À louer"}
-          </span>
+          {(() => {
+            const isVendu = status === 'vendu' || sold;
+            const isSousCompromis = status === 'sous_compromis';
+            
+            let label: string;
+            let backgroundColor: string;
+            
+            if (isVendu) {
+              label = "Vendu";
+              backgroundColor = '#22c55e'; // Vert
+            } else if (isSousCompromis) {
+              label = "Sous compromis";
+              backgroundColor = '#ef4444'; // Rouge
+            } else {
+              label = type === "acheter" ? "À vendre" : "À louer";
+              backgroundColor = type === "acheter" ? '#1a2332' : '#3b4a5e'; // Bleu foncé pour vente, bleu plus clair pour location
+            }
+            
+            return (
+              <span className="text-white px-3 py-3 text-sm font-semibold inline-block" style={{ backgroundColor }}>
+                {label}
+              </span>
+            );
+          })()}
         </div>
         
         {/* Informations en bas de l'image */}
         <div className="absolute bottom-0 left-0 right-0 z-20 p-4">
           <div className="flex items-center justify-between text-white mb-3">
             <span className="text-2xl md:text-3xl font-normal">
-              {formatPrice(price)}
-              {type === "louer" && <span className="text-base font-normal">/mois</span>}
+              {displayPrice}
+              {type === "louer" && !priceOnDemand && price !== null && <span className="text-base font-normal">/mois</span>}
             </span>
           </div>
           <div className="flex items-center space-x-2 text-white/90 text-sm md:text-base">
             <span>{area} m²</span>
             <span>•</span>
             <span>{rooms} {rooms > 1 ? "ch." : "ch."}</span>
-            <span>•</span>
-            <span>1 SDB</span>
+            {bathrooms !== null && bathrooms !== undefined && bathrooms > 0 && (
+              <>
+                <span>•</span>
+                <span>{bathrooms} {bathrooms > 1 ? "SDB" : "SDB"}</span>
+              </>
+            )}
+            {(!bathrooms || bathrooms === 0 || bathrooms === null) && (
+              <>
+                <span>•</span>
+                <span>1 SDB</span>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import Link from 'next/link';
 import './StaggeredMenu.css';
 
 interface MenuItem {
@@ -495,7 +496,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
       data-open={open || undefined}
     >
       <header ref={headerRef} className="staggered-menu-header" aria-label="Main navigation header">
-        <div className="sm-logo" aria-label="Logo">
+        <Link href="/" className="sm-logo" aria-label="Logo - Aller à la page d'accueil">
           <img
             src={logoUrl || '/src/assets/logos/reactbits-gh-white.svg'}
             alt="Logo"
@@ -504,7 +505,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
             width={110}
             height={24}
           />
-        </div>
+        </Link>
         <button
           ref={toggleBtnRef}
           className="sm-toggle"

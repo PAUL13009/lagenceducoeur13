@@ -45,11 +45,14 @@ export default function CataloguePage() {
             area: property.area || 0,
             rooms: property.rooms || 0,
             bedrooms: property.bedrooms || 0,
+            bathrooms: property.bathrooms || null,
             image: property.main_photo || property.photos?.[0] || '/property1.jpg',
             type: property.type || 'acheter',
             propertyType: property.property_type || 'appartement',
+            status: property.status || (property.sold ? 'vendu' : 'à_vendre'),
             sold: property.sold || false,
             slug: property.slug || undefined,
+            priceOnDemand: property.price_on_demand || false,
           }));
           setAllProperties(formattedProperties);
         }
@@ -72,13 +75,21 @@ export default function CataloguePage() {
   };
 
   // Séparer les biens vendus des biens disponibles
-  // Filtrer uniquement les biens à vendre (type: 'acheter')
+  // Filtrer les biens à vendre (type: 'acheter') et les biens à louer (type: 'louer')
   const propertiesToSell = allProperties.filter(property => property.type === 'acheter');
-  const availableProperties = propertiesToSell.filter(property => !property.sold);
-  const soldProperties = propertiesToSell.filter(property => property.sold);
+  const propertiesToRent = allProperties.filter(property => property.type === 'louer');
+  const availableProperties = propertiesToSell.filter(property => {
+    const status = property.status || (property.sold ? 'vendu' : 'à_vendre');
+    return status === 'à_vendre' || status === 'sous_compromis';
+  });
+  const allAvailableProperties = [...availableProperties, ...propertiesToRent];
+  const soldProperties = propertiesToSell.filter(property => {
+    const status = property.status || (property.sold ? 'vendu' : 'à_vendre');
+    return status === 'vendu';
+  });
 
   // Filtrer les biens disponibles selon les critères en temps réel
-  const filteredProperties = availableProperties.filter(property => {
+  const filteredProperties = allAvailableProperties.filter(property => {
     // Filtre par type de transaction
     if (filters.transactionType) {
       const expectedType = filters.transactionType === 'vente' ? 'acheter' : 'louer';

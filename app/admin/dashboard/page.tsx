@@ -33,7 +33,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('vente');
   const [showAddPropertyForm, setShowAddPropertyForm] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<any | null>(null);
   const [properties, setProperties] = useState<any[]>([]);
+  const [locationProperties, setLocationProperties] = useState<any[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(false);
   const [estimationRequests, setEstimationRequests] = useState<any[]>([]);
   const [loadingEstimationRequests, setLoadingEstimationRequests] = useState(false);
@@ -53,9 +55,11 @@ export default function AdminDashboard() {
     title: '',
     propertyType: 'appartement',
     price: '',
+    priceOnDemand: false,
     area: '',
     rooms: '',
     bedrooms: '',
+    bathrooms: '',
     city: '',
     district: '',
     description: '',
@@ -65,20 +69,34 @@ export default function AdminDashboard() {
     dpeEnergie: '',
     dpeClimat: '',
     photos: [] as File[],
+    status: 'à_vendre' as 'à_vendre' | 'sous_compromis' | 'vendu',
   });
 
-  // Fonction pour récupérer les propriétés
+  // Fonction pour récupérer les propriétés à vendre
   const fetchProperties = async () => {
     setLoadingProperties(true);
     try {
-      // Récupérer tous les biens et filtrer côté client pour éviter les problèmes d'index composite
       const allData = await getAllProperties();
-      // Filtrer uniquement les biens à vendre (type: 'acheter')
       const filteredData = allData.filter((p: any) => p.type === 'acheter');
       setProperties(filteredData || []);
     } catch (err) {
       console.error('Erreur:', err);
       setProperties([]);
+    } finally {
+      setLoadingProperties(false);
+    }
+  };
+
+  // Fonction pour récupérer les propriétés à louer
+  const fetchLocationProperties = async () => {
+    setLoadingProperties(true);
+    try {
+      const allData = await getAllProperties();
+      const filteredData = allData.filter((p: any) => p.type === 'louer');
+      setLocationProperties(filteredData || []);
+    } catch (err) {
+      console.error('Erreur:', err);
+      setLocationProperties([]);
     } finally {
       setLoadingProperties(false);
     }
@@ -523,30 +541,77 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditClick = (property: any) => {
+    setEditingProperty(property);
+    const status = property.status || (property.sold ? 'vendu' : 'à_vendre');
+    const priceOnDemand = property.price_on_demand || (!property.price || property.price === null);
+    setFormData({
+      title: property.title || '',
+      propertyType: property.property_type || 'appartement',
+      price: property.price?.toString() || '',
+      priceOnDemand: priceOnDemand,
+      area: property.area?.toString() || '',
+      rooms: property.rooms?.toString() || '',
+      bedrooms: property.bedrooms?.toString() || '',
+      bathrooms: property.bathrooms?.toString() || '',
+      city: property.city || '',
+      district: property.district || '',
+      description: property.description || '',
+      characteristics: property.characteristics || [],
+      charges: property.charges?.toString() || '',
+      taxeFonciere: property.taxe_fonciere?.toString() || '',
+      dpeEnergie: property.dpe_energie || '',
+      dpeClimat: property.dpe_climat || '',
+      photos: [],
+      status: status as 'à_vendre' | 'sous_compromis' | 'vendu',
+    });
+    setShowAddPropertyForm(true);
+    // Changer la section active si nécessaire pour le type de bien
+    if (property.type === 'louer') {
+      setActiveSection('location');
+    } else {
+      setActiveSection('vente');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.photos.length === 0) {
+    if (!editingProperty && formData.photos.length === 0) {
       alert('Veuillez sélectionner au moins une photo pour le bien.');
       return;
     }
 
     try {
-      // 1. Uploader les photos dans Supabase Storage
       const photoUrls: string[] = [];
       
-      // Uploader toutes les photos
-      const uploadedUrls = await uploadMultipleFiles(formData.photos, 'properties');
-      photoUrls.push(...uploadedUrls);
+      // Si on édite, garder les photos existantes si aucune nouvelle photo n'est ajoutée
+      if (editingProperty) {
+        photoUrls.push(...(editingProperty.photos || []));
+      }
+      
+      // Uploader les nouvelles photos si elles existent
+      if (formData.photos.length > 0) {
+        const uploadedUrls = await uploadMultipleFiles(formData.photos, 'properties');
+        if (editingProperty) {
+          // Remplacer les photos existantes lors de l'édition
+          photoUrls.length = 0;
+          photoUrls.push(...uploadedUrls);
+        } else {
+          photoUrls.push(...uploadedUrls);
+        }
+      }
 
-      // 2. Préparer les données pour la base de données
+      // Préparer les données pour la base de données
       const propertyData = {
         title: formData.title,
         property_type: formData.propertyType,
-        price: parseInt(formData.price),
+        price: formData.priceOnDemand ? null : parseInt(formData.price),
+        price_on_demand: formData.priceOnDemand,
         area: parseInt(formData.area),
         rooms: parseInt(formData.rooms),
         bedrooms: parseInt(formData.bedrooms),
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
         city: formData.city,
         district: formData.district,
         description: formData.description,
@@ -557,16 +622,22 @@ export default function AdminDashboard() {
         dpe_climat: formData.dpeClimat || null,
         main_photo: photoUrls[0] || null,
         photos: photoUrls,
-        type: 'acheter', // Pour la section "Vendre un bien"
-        sold: false,
-        // created_at sera ajouté automatiquement par prepareDataForInsert
+        type: activeSection === 'location' ? 'louer' : 'acheter',
+        status: activeSection === 'location' ? undefined : formData.status,
+        sold: activeSection === 'location' ? undefined : formData.status === 'vendu',
       };
 
-      // 3. Insérer le bien dans Firestore
-      await createProperty(propertyData);
+      // Mettre à jour ou créer le bien
+      if (editingProperty) {
+        await updateProperty(editingProperty.id, propertyData);
+        alert('Bien modifié avec succès !');
+      } else {
+        await createProperty(propertyData);
+        alert('Bien enregistré avec succès !');
+      }
 
-      alert('Bien enregistré avec succès !');
       setShowAddPropertyForm(false);
+      setEditingProperty(null);
       
       // Réinitialiser le formulaire
       setFormData({
@@ -585,10 +656,17 @@ export default function AdminDashboard() {
         dpeEnergie: '',
         dpeClimat: '',
         photos: [],
+        bathrooms: '',
+        priceOnDemand: false,
+        status: 'à_vendre' as 'à_vendre' | 'sous_compromis' | 'vendu',
       });
 
-      // Recharger la liste des propriétés
-      await fetchProperties();
+      // Recharger la liste des propriétés selon la section active
+      if (activeSection === 'location') {
+        await fetchLocationProperties();
+      } else {
+        await fetchProperties();
+      }
     } catch (err: any) {
       alert(`Erreur: ${err.message}`);
       console.error('Erreur:', err);
@@ -764,10 +842,7 @@ export default function AdminDashboard() {
                               Supprimer
                             </button>
                             <button
-                              onClick={() => {
-                                // TODO: Implémenter l'édition
-                                alert('Fonctionnalité d\'édition à venir');
-                              }}
+                              onClick={() => handleEditClick(property)}
                               className="px-4 py-2 text-sm border-2 rounded-lg hover:bg-gray-50 transition-colors"
                               style={{ borderColor: '#1a2332', color: '#1a2332' }}
                             >
@@ -785,17 +860,105 @@ export default function AdminDashboard() {
 
           {activeSection === 'location' && (
             <div>
-              <h2 className="text-2xl font-normal mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
-                Louer un bien
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-normal uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
+                  Louer un bien
+                </h2>
+                <button
+                  onClick={() => setShowAddPropertyForm(true)}
+                  className="cta-button group bg-transparent border-2 px-6 py-3 rounded-lg font-semibold shadow-lg transition-all flex items-center justify-center gap-2"
+                  style={{ borderColor: '#1a2332', color: '#1a2332' }}
+                >
+                  <span>Ajouter un bien</span>
+                  <svg 
+                    className="w-5 h-5 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 ease-out" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
               <p className="text-gray-600 mb-4">
                 Gérez les biens à louer. Ajoutez, modifiez ou supprimez des propriétés en location.
               </p>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-500">
-                  Fonctionnalité à implémenter : Liste des biens à louer avec possibilité d'ajout, modification et suppression.
-                </p>
-              </div>
+              
+              {loadingProperties ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">Chargement des biens...</p>
+                </div>
+              ) : locationProperties.length === 0 ? (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">
+                    Aucun bien à louer pour le moment. Cliquez sur "Ajouter un bien" pour en ajouter un.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-sm text-gray-600">
+                      {locationProperties.length} bien{locationProperties.length > 1 ? 's' : ''} à louer
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {locationProperties.map((property) => (
+                      <div key={property.id} className="border-2 rounded-lg overflow-hidden hover:shadow-lg transition-shadow" style={{ borderColor: '#1a2332' }}>
+                        {property.main_photo && (
+                          <div className="relative w-full h-48">
+                            <Image
+                              src={property.main_photo}
+                              alt={property.title}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-lg mb-2" style={{ color: '#1a2332' }}>
+                            {property.title}
+                          </h3>
+                          <div className="space-y-1 text-sm text-gray-600 mb-3">
+                            <p>{property.city} {property.district}</p>
+                            <p className="font-semibold text-lg" style={{ color: '#1a2332' }}>
+                              {property.price_on_demand || property.price === null 
+                                ? 'Sur demande' 
+                                : `${typeof property.price === 'number' ? property.price.toLocaleString('fr-FR') : property.price} €/mois`}
+                            </p>
+                            <p>{property.area} m² • {property.rooms} pièces • {property.bedrooms} ch.</p>
+                            <p className="capitalize">{property.property_type}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={async () => {
+                                if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
+                                  try {
+                                    await deleteProperty(property.id);
+                                    fetchLocationProperties();
+                                  } catch (error: any) {
+                                    alert('Erreur lors de la suppression: ' + error.message);
+                                  }
+                                }
+                              }}
+                              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              Supprimer
+                            </button>
+                            <button
+                              onClick={() => handleEditClick(property)}
+                              className="px-4 py-2 text-sm border-2 rounded-lg hover:bg-gray-50 transition-colors"
+                              style={{ borderColor: '#1a2332', color: '#1a2332' }}
+                            >
+                              Modifier
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1885,10 +2048,13 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <h3 className="text-2xl font-normal uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
-                Ajouter un bien à vendre
+                {editingProperty ? 'Modifier un bien' : 'Ajouter un bien à vendre'}
               </h3>
               <button
-                onClick={() => setShowAddPropertyForm(false)}
+                onClick={() => {
+                  setShowAddPropertyForm(false);
+                  setEditingProperty(null);
+                }}
                 className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
               >
                 ×
@@ -1932,29 +2098,53 @@ export default function AdminDashboard() {
 
               {/* Prix */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Prix (€) *
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {activeSection === 'location' ? 'Prix par mois (€)' : 'Prix (€)'} *
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.priceOnDemand}
+                      onChange={(e) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          priceOnDemand: e.target.checked,
+                          price: e.target.checked ? '' : prev.price
+                        }));
+                      }}
+                      className="w-4 h-4 rounded border-gray-300"
+                      style={{ accentColor: '#1a2332' }}
+                    />
+                    <span className="text-sm text-gray-700">Sur demande</span>
+                  </label>
+                </div>
                 <input
                   type="number"
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  required
+                  required={!formData.priceOnDemand}
+                  disabled={formData.priceOnDemand}
                   min="0"
                   step="1"
-                  className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   style={{ borderColor: '#1a2332' }}
-                  placeholder="Ex: 350000"
+                  placeholder={formData.priceOnDemand ? "Prix sur demande" : "Ex: 350000"}
                 />
-                {formData.price && (
+                {formData.price && !formData.priceOnDemand && (
                   <p className="text-sm text-gray-500 mt-1">
                     Prix formaté : {parseInt(formData.price || '0').toLocaleString('fr-FR')} €
+                  </p>
+                )}
+                {formData.priceOnDemand && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Le prix ne sera pas affiché publiquement
                   </p>
                 )}
               </div>
 
               {/* Surface et pièces */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Surface (m²) *
@@ -2001,6 +2191,21 @@ export default function AdminDashboard() {
                     className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
                     style={{ borderColor: '#1a2332' }}
                     placeholder="Ex: 2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre de salles de bain
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.bathrooms}
+                    onChange={(e) => setFormData(prev => ({ ...prev, bathrooms: e.target.value }))}
+                    min="0"
+                    step="1"
+                    className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    style={{ borderColor: '#1a2332' }}
+                    placeholder="Ex: 1"
                   />
                 </div>
               </div>
@@ -2150,11 +2355,63 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Statut du bien - uniquement pour les biens à vendre */}
+              {activeSection === 'vente' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Statut du bien *
+                </label>
+                <div className="flex gap-4 border-2 rounded-lg p-2" style={{ borderColor: '#1a2332' }}>
+                  <label className="flex items-center space-x-2 cursor-pointer flex-1">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="à_vendre"
+                      checked={formData.status === 'à_vendre'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'à_vendre' | 'sous_compromis' | 'vendu' }))}
+                      className="w-4 h-4"
+                      style={{ accentColor: '#1a2332' }}
+                    />
+                    <span className="text-sm text-gray-700">À vendre</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer flex-1">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="sous_compromis"
+                      checked={formData.status === 'sous_compromis'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'à_vendre' | 'sous_compromis' | 'vendu' }))}
+                      className="w-4 h-4"
+                      style={{ accentColor: '#1a2332' }}
+                    />
+                    <span className="text-sm text-gray-700">Sous compromis</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer flex-1">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="vendu"
+                      checked={formData.status === 'vendu'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'à_vendre' | 'sous_compromis' | 'vendu' }))}
+                      className="w-4 h-4"
+                      style={{ accentColor: '#1a2332' }}
+                    />
+                    <span className="text-sm text-gray-700">Vendu</span>
+                  </label>
+                </div>
+              </div>
+              )}
+
               {/* Photos */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Photos du bien (maximum 15, la première sera la photo principale) *
+                  Photos du bien (maximum 15, la première sera la photo principale) {!editingProperty && '*'}
                 </label>
+                {editingProperty && (
+                  <p className="text-sm text-gray-500 mb-2">
+                    Les nouvelles photos remplaceront les photos existantes. Laissez vide pour garder les photos actuelles.
+                  </p>
+                )}
                 <input
                   type="file"
                   accept="image/*"
@@ -2163,10 +2420,37 @@ export default function AdminDashboard() {
                   className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
                   style={{ borderColor: '#1a2332' }}
                 />
+                {editingProperty && editingProperty.photos && editingProperty.photos.length > 0 && !formData.photos.length && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Photos actuelles ({editingProperty.photos.length}) :
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {editingProperty.photos.map((photoUrl: string, index: number) => (
+                        <div key={index} className="relative">
+                          <div className="aspect-square relative rounded-lg overflow-hidden border-2" style={{ borderColor: '#1a2332' }}>
+                            <Image
+                              src={photoUrl}
+                              alt={`Photo ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                          {index === 0 && (
+                            <div className="absolute top-2 left-2 bg-[#1a2332] text-white text-xs px-2 py-1 rounded">
+                              Principale
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {formData.photos.length > 0 && (
                   <div className="mt-4">
                     <p className="text-sm text-gray-600 mb-2">
-                      {formData.photos.length} photo(s) sélectionnée(s) :
+                      Nouvelles photo(s) sélectionnée(s) ({formData.photos.length}) {editingProperty && '(remplaceront les photos actuelles)'} :
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {formData.photos.map((photo, index) => (
@@ -2196,7 +2480,10 @@ export default function AdminDashboard() {
               <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowAddPropertyForm(false)}
+                  onClick={() => {
+                    setShowAddPropertyForm(false);
+                    setEditingProperty(null);
+                  }}
                   className="px-6 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors border-2 rounded-lg"
                   style={{ borderColor: '#1a2332', color: '#1a2332' }}
                 >

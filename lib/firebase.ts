@@ -13,12 +13,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Fonction pour initialiser Firebase (appelée uniquement côté client)
+// Fonction pour initialiser Firebase (côté client et serveur)
 function getFirebaseApp(): FirebaseApp {
-  if (typeof window === 'undefined') {
-    throw new Error('Firebase can only be initialized on the client side');
-  }
-
   if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
     throw new Error('Les variables d\'environnement Firebase ne sont pas définies. Vérifiez votre fichier .env.local');
   }
@@ -30,21 +26,23 @@ function getFirebaseApp(): FirebaseApp {
   }
 }
 
-// Initialiser Firebase uniquement côté client
+// Initialiser Firebase (côté client et serveur pour le sitemap)
 let app: FirebaseApp | undefined;
 let authInstance: Auth | undefined;
 let dbInstance: Firestore | undefined;
 let storageInstance: FirebaseStorage | undefined;
 
-if (typeof window !== 'undefined') {
-  try {
-    app = getFirebaseApp();
+try {
+  app = getFirebaseApp();
+  dbInstance = getFirestore(app);
+  
+  // Auth et Storage uniquement côté client
+  if (typeof window !== 'undefined') {
     authInstance = getAuth(app);
-    dbInstance = getFirestore(app);
     storageInstance = getStorage(app);
-  } catch (error) {
-    console.error('Error initializing Firebase:', error);
   }
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
 }
 
 export const auth = authInstance!;

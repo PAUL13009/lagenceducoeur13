@@ -28,8 +28,15 @@ export default function Home() {
     const fetchProperties = async () => {
       try {
         const data = await getAllProperties();
-        // Filtrer uniquement les biens à vendre (type: 'acheter') non vendus
-        const unsoldProperties = data.filter((p: any) => p.type === 'acheter' && !p.sold).slice(0, 6);
+        // Filtrer les biens à vendre (type: 'acheter') non vendus et les biens à louer
+        const unsoldProperties = data.filter((p: any) => {
+          if (p.type === 'louer') return true; // Tous les biens à louer sont affichés
+          if (p.type === 'acheter') {
+            const status = p.status || (p.sold ? 'vendu' : 'à_vendre');
+            return status === 'à_vendre' || status === 'sous_compromis';
+          }
+          return false;
+        }).slice(0, 6);
 
         if (!unsoldProperties || unsoldProperties.length === 0) {
           setFeaturedProperties([]);
@@ -41,10 +48,13 @@ export default function Home() {
             price: property.price,
             area: property.area || 0,
             rooms: property.rooms || 0,
+            bathrooms: property.bathrooms || null,
             image: property.main_photo || property.photos?.[0] || '/property1.jpg',
             type: property.type || 'acheter',
+            status: property.status || (property.sold ? 'vendu' : 'à_vendre'),
             sold: property.sold || false,
             slug: property.slug || undefined,
+            priceOnDemand: property.price_on_demand || false,
           }));
           setFeaturedProperties(formattedProperties);
         }

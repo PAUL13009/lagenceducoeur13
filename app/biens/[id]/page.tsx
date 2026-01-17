@@ -99,6 +99,10 @@ export default function PropertyDetailPage() {
       maximumFractionDigits: 0,
     }).format(price);
   };
+  
+  const displayPrice = property.price_on_demand || property.price === null 
+    ? "Sur demande" 
+    : formatPrice(property.price);
 
   const menuItems = [
     { label: 'Accueil', link: '/', ariaLabel: 'Aller à la page d\'accueil' },
@@ -266,8 +270,8 @@ export default function PropertyDetailPage() {
                 </p>
                 <div className="flex items-center">
                   <p className="text-3xl md:text-4xl font-semibold" style={{ color: '#1a2332' }}>
-                    {formatPrice(property.price)}
-                    {property.type === 'louer' && <span className="text-lg font-normal">/mois</span>}
+                    {displayPrice}
+                    {property.type === 'louer' && !property.price_on_demand && property.price !== null && <span className="text-lg font-normal">/mois</span>}
                   </p>
                 </div>
               </div>
