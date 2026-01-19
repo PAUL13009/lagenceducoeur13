@@ -119,6 +119,7 @@ export default function ContactPage() {
     { label: 'Notre Approche', link: '/approche', ariaLabel: 'Découvrir notre approche' },
     { label: 'Nos Services', link: '/services', ariaLabel: 'Voir nos services' },
     { label: 'Notre Catalogue', link: '/catalogue', ariaLabel: 'Voir notre catalogue de biens' },
+    { label: 'Actualités', link: '/actualites', ariaLabel: 'Voir les actualités' },
     { label: 'À Propos', link: '/a-propos', ariaLabel: 'En savoir plus sur l\'agence' },
     { label: 'Contact', link: '/contact', ariaLabel: 'Nous contacter' },
   ];

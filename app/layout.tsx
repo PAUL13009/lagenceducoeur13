@@ -12,6 +12,11 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Agence du Cœur - Immobilier",
   description: "Votre partenaire de confiance pour trouver la propriété de vos rêves",
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
