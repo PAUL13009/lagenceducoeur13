@@ -123,7 +123,7 @@ export default function ActualitesPage() {
                   <article className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 group h-full">
                     <div className="relative w-full h-48 overflow-hidden">
                       <Image
-                        src="/imageartperier.jpg"
+                        src="/imageartperiera.jpg"
                         alt="Prix au m² à Périer"
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-110"
