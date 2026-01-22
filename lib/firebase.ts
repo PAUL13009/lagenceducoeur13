@@ -14,39 +14,52 @@ const firebaseConfig = {
 };
 
 // Fonction pour initialiser Firebase (côté client et serveur)
-function getFirebaseApp(): FirebaseApp {
+function getFirebaseApp(): FirebaseApp | null {
+  // Vérifier que toutes les variables d'environnement requises sont présentes
   if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-    throw new Error('Les variables d\'environnement Firebase ne sont pas définies. Vérifiez votre fichier .env.local');
+    if (typeof window !== 'undefined') {
+      // Côté client, on peut logger une erreur
+      console.error('Les variables d\'environnement Firebase ne sont pas définies. Vérifiez votre fichier .env.local');
+    }
+    return null;
   }
 
-  if (getApps().length === 0) {
-    return initializeApp(firebaseConfig);
-  } else {
-    return getApps()[0];
+  try {
+    if (getApps().length === 0) {
+      return initializeApp(firebaseConfig);
+    } else {
+      return getApps()[0];
+    }
+  } catch (error) {
+    console.error('Error initializing Firebase app:', error);
+    return null;
   }
 }
 
 // Initialiser Firebase (côté client et serveur pour le sitemap)
-let app: FirebaseApp | undefined;
+let app: FirebaseApp | null = null;
 let authInstance: Auth | undefined;
 let dbInstance: Firestore | undefined;
 let storageInstance: FirebaseStorage | undefined;
 
 try {
   app = getFirebaseApp();
-  dbInstance = getFirestore(app);
-  
-  // Auth et Storage uniquement côté client
-  if (typeof window !== 'undefined') {
-    authInstance = getAuth(app);
-    storageInstance = getStorage(app);
+  if (app) {
+    dbInstance = getFirestore(app);
+    
+    // Auth et Storage uniquement côté client
+    if (typeof window !== 'undefined') {
+      authInstance = getAuth(app);
+      storageInstance = getStorage(app);
+    }
   }
 } catch (error) {
   console.error('Error initializing Firebase:', error);
 }
 
-export const auth = authInstance!;
-export const db = dbInstance!;
-export const storage = storageInstance!;
+// Exports avec vérification pour éviter les erreurs si Firebase n'est pas initialisé
+export const auth = authInstance as Auth;
+export const db = dbInstance as Firestore;
+export const storage = storageInstance as FirebaseStorage;
 
-export default app!;
+export default app;

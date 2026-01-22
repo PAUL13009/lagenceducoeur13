@@ -122,6 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
   } catch (error) {
+    // En cas d'erreur, on continue avec les pages statiques uniquement
     console.error('Erreur lors de la récupération des biens pour le sitemap:', error);
   }
 
