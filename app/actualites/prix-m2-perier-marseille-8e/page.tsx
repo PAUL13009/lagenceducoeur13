@@ -8,7 +8,7 @@ export default function PrixM2PerierPage() {
   // Injection des metadata SEO pour les composants client
   useEffect(() => {
     // Title
-    document.title = 'Prix m² Périer (Marseille 8e) en 2026 - Analyse des tendances immobilières';
+    document.title = 'Prix m2 Marseille Périer (8e) : Analyse Réelle 2026 par Rue';
     
     // Meta description
     let metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
@@ -17,7 +17,7 @@ export default function PrixM2PerierPage() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Découvrez le prix moyen du m² à Périer (Marseille 8e) en 2026. Données fiables, analyse du marché local, repères réalistes pour vendre ou acheter en toute sérénité.');
+    metaDescription.setAttribute('content', 'Découvrez le prix au m2 à Périer (13008) en 2026. Analyse des ventes réelles, quartiers prisés et impact du standing. Évitez les moyennes trompeuses.');
     
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
@@ -63,7 +63,7 @@ export default function PrixM2PerierPage() {
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-normal mb-8 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em' }}>
-                Quel est le prix du m2 à Périer (Marseille 8e) en 2026 ?
+                Quel est le prix réel du m2 à Marseille Périer (8e) en 2026 ?
               </h1>
             </div>
           </div>
@@ -77,100 +77,131 @@ export default function PrixM2PerierPage() {
               {/* Introduction */}
               <div className="mb-12">
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  Connaître le prix moyen au mètre carré dans son quartier est essentiel pour vendre ou acheter un bien immobilier en toute sérénité. Cet article présente les derniers chiffres du marché immobilier à Périer, quartier résidentiel du 8e arrondissement de Marseille, ainsi que les tendances observées ces dernières années. Les données présentées proviennent de sources fiables (base DVF des ventes réelles, observatoires immobiliers) et donnent un aperçu réaliste de la valeur de l'immobilier dans ce secteur. Comprendre ces repères permet de mieux appréhender son projet, qu'il s'agisse de vendre au juste prix ou d'acheter en connaissance de cause.
+                  Le quartier Périer n'est pas une statistique, c'est un micromarché. Si les portails nationaux affichent une moyenne lissée autour de 4 550 €/m², cette donnée est souvent inutile pour un propriétaire. À Périer, entre un rez-de-chaussée sombre et un dernier étage avec terrasse avec une vue sur la colline de Notre Dame de la Garde, le prix peut varier du simple au double.
                 </p>
               </div>
 
-              {/* Prix moyen actuel */}
+              {/* Pourquoi le prix moyen à Périer est souvent trompeur */}
               <div className="mb-12">
                 <h2 className="text-3xl md:text-4xl font-normal text-gray-900 mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
-                  Le prix moyen actuel à Périer
+                  Pourquoi le prix moyen à Périer est souvent trompeur ?
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Le quartier Périer affiche actuellement des prix au mètre carré avoisinant les 4 500 € pour les appartements anciens. D'après les données récentes compilées en 2025-2026, le prix moyen se situe autour de 4 400 à 4 600 € du m² dans ce secteur. Par exemple, le portail Efficity estime en janvier 2026 un prix moyen d'environ 4 390 €/m² sur Périer, tandis que des médias spécialisés comme Figaro Immobilier indiquent un prix médian proche de 4 585 €/m² pour le quartier.
+                  Afficher un prix moyen est rassurant, mais la réalité du terrain dans le 8ème arrondissement est plus complexe. En 2026, nous observons trois strates de prix distinctes :
                 </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  En pratique, les transactions effectuées montrent une grande fourchette de valeurs. La majorité des ventes d'appartements à Périer se situent entre environ 3 400 € et 5 400 € par m² selon les caractéristiques du bien. Un petit appartement à rafraîchir peut ainsi se vendre autour de 3 500 €/m², tandis qu'un bien rénové avec terrasse et emplacement premium peut dépasser les 5 000 €/m².
-                </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Comparé à la moyenne de Marseille, Périer se positionne dans la moyenne haute de l'offre immobilière marseillaise. Le 8e arrondissement compte parmi les secteurs les plus recherchés de la ville, en particulier pour les appartements familiaux. Cette position s'explique par la qualité du cadre de vie (proximité des plages du Prado, commodités urbaines, rues calmes) et par un bon niveau de prestations des immeubles résidentiels.
-                </p>
-                <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4" style={{ color: '#1a2332' }}>
-                    Fourchette de prix au m² à Périer (indicateurs 2026)
-                  </h3>
-                  <ul className="space-y-2 text-lg text-gray-700">
-                    <li><strong>Prix bas :</strong> environ 3 400 €/m² (biens nécessitant des travaux, rez-de-chaussée sans extérieur)</li>
-                    <li><strong>Prix moyen :</strong> environ 4 400 à 4 600 €/m² (biens standards en bon état)</li>
-                    <li><strong>Prix haut :</strong> au-delà de 5 000 €/m² (biens rénovés avec extérieur, dernier étage, standing élevé)</li>
-                  </ul>
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      Le "Périer Prestige" (5 800 €/m² et +)
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      Concerne les biens d'exception, souvent situés dans le Carré d'Or, rue Lord Duveen ou dans les résidences ultra-calmes de la rue du Commandant Rolland. Ici, la vue dégagée et le calme absolu se paient au prix fort.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      Le "Périer Classique" (4 400 € - 5 200 €/m²)
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      C'est le cœur du marché. Des appartements familiaux dans des immeubles de standing des années 70 ou du Haussmannien bien entretenu sur la rue Paradis.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      Le "Périer Urbain" (3 500 € - 4 200 €/m²)
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      Biens situés sur des axes plus passants comme le Boulevard Périer ou à proximité immédiate du rond-point du Prado, subissant des nuisances sonores ou nécessitant une rénovation lourde.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Variations et tendances */}
+              {/* Analyse par micro-secteurs */}
               <div className="mb-12">
                 <h2 className="text-3xl md:text-4xl font-normal text-gray-900 mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
-                  Variations et tendances du marché à Périer
+                  Analyse par micro-secteurs : Où se situent les valeurs hautes ?
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Après plusieurs années de hausse continue, le marché immobilier marseillais a connu une stabilisation depuis fin 2024. Sur le secteur de Périer et plus généralement dans le 8e arrondissement, les 12 derniers mois ont vu un léger fléchissement des prix. Les données officielles indiquent environ -1,5 % sur un an fin 2025 pour les appartements du 8e arrondissement. Les notaires observent qu'au premier semestre 2024, le prix médian des appartements anciens dans le 8e était quasi stable (-0,4 % en un an).
+                  Pour comprendre le prix de votre appartement, il faut regarder ce que les acheteurs ciblent prioritairement en 2026 :
                 </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Cette correction modérée n'enlève rien à l'attractivité du quartier. La demande reste présente pour les biens de qualité, notamment les appartements familiaux avec balcon et parking. Le quartier Périer, composé majoritairement d'appartements en immeubles résidentiels, a plutôt bien résisté avec des valeurs qui se maintiennent autour de leur plateau haut atteint en 2022-2023. Certains professionnels parlent d'un marché qui "se tasse" : les vendeurs ont dû intégrer la hausse des taux d'intérêt et la moindre solvabilité des acheteurs, ce qui a freiné la hausse des prix et allongé les délais de vente.
-                </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Cette stabilisation s'explique par plusieurs facteurs. La hausse des taux d'intérêt a réduit la capacité d'emprunt des acquéreurs, créant une pression à la baisse sur les prix. Parallèlement, les acheteurs sont devenus plus sélectifs et n'hésitent plus à négocier. En 2024, plus de 70 % des transactions marseillaises se concluaient après négociation, avec un rabais moyen d'environ 5 % par rapport au prix affiché. En fin d'année 2024, les professionnels locaux notaient qu'il était courant d'obtenir -3 à -4 % lors de la vente.
-                </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  Malgré ce contexte ajusté, Périer conserve ses atouts fondamentaux : quartier résidentiel prisé, bien desservi par les transports (métro Périer), proche des commodités et des espaces verts. Le marché reste dynamique pour les biens correctement positionnés, avec des délais de vente qui s'allongent légèrement pour les biens surestimés. Cette période de stabilisation est finalement saine : elle garantit des prix plus réalistes, ni surévalués ni bradés.
-                </p>
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      La proximité des écoles de renom
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      Un appartement de type 4 ou 5 situé à moins de 10 minutes à pied de l'École Provence ou de Mermoz bénéficie d'une prime de rareté. Les familles sont prêtes à payer 10% de plus pour cette sectorisation.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      L'accessibilité stratégique
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      Le secteur proche du Métro Périer reste une valeur refuge pour les actifs, garantissant une revente rapide.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ color: '#1a2332' }}>
+                      Le facteur "Vue et Terrasse"
+                    </h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      À Marseille, le soleil est une monnaie. Une terrasse de plus de 15m² avec une exposition Sud/Ouest peut ajouter jusqu'à 60 000 € à la valeur finale d'un bien par rapport à un balcon simple.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Comment interpréter le prix au m² */}
+              {/* Tendances 2026 */}
               <div className="mb-12">
                 <h2 className="text-3xl md:text-4xl font-normal text-gray-900 mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
-                  Comment interpréter le prix au m² : une moyenne indicative
+                  Tendances 2026 : Faut-il vendre ou attendre à Périer ?
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Il est important de comprendre que le prix au m² est un indicateur statistique, pas une vérité absolue. Chaque bien immobilier est unique, et de nombreux facteurs peuvent faire varier significativement la valeur d'un appartement par rapport à la moyenne du quartier. Le prix moyen de 4 500 €/m² évoqué précédemment ne constitue qu'un point de repère : le prix réel de votre appartement dépendra de sa propre configuration et de ses caractéristiques spécifiques.
+                  Après la correction de 2024-2025, le marché du 8ème arrondissement s'est stabilisé. Les acquéreurs sont désormais des "experts" : ils comparent tout.
                 </p>
+                <div className="space-y-4 mb-6">
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    <strong>Les délais de vente :</strong> Ils sont passés de 45 à 75 jours pour les biens sans défaut.
+                  </p>
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    <strong>La marge de négociation :</strong> Elle se situe autour de 4% pour les biens affichés au prix de marché.
+                  </p>
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    <strong>Le conseil de l'expert :</strong> Si votre bien dispose d'un box ou d'un garage fermé, vous détenez un avantage concurrentiel majeur. Le stationnement à Périer est devenu le premier critère de refus des acheteurs qualifiés.
+                  </p>
+                </div>
+              </div>
+
+              {/* Comment transformer ces chiffres en prix de vente réel */}
+              <div className="mb-12">
+                <h2 className="text-3xl md:text-4xl font-normal text-gray-900 mb-6 uppercase tracking-wider" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '0.08em', color: '#1a2332' }}>
+                  Comment transformer ces chiffres en prix de vente réel ?
+                </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Plusieurs critères influencent directement la valeur au m² d'un appartement à Périer. L'étage et la présence d'un ascenseur ont un impact notable : un dernier étage lumineux avec ascenseur sera mieux valorisé qu'un rez-de-chaussée sombre, avec des écarts pouvant atteindre 10 à 15 %. La présence d'un extérieur privatif (balcon, loggia, terrasse) est également un facteur déterminant. Selon une étude de 2025, un appartement avec balcon ou terrasse en PACA se vend en moyenne +12 % plus cher qu'un bien similaire sans extérieur, et cette plus-value dépasse +15 % pour les grandes terrasses de plus de 10 m².
+                  Le prix au m² est une boussole, pas une destination. Pour fixer un prix qui génère des offres sans brader votre patrimoine, vous devez intégrer :
                 </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  L'état général du bien et celui de la copropriété jouent un rôle majeur. Un logement entièrement rénové se vendra nettement plus cher qu'un appartement nécessitant des travaux. Si des réparations importantes sont à prévoir (électricité, plomberie, ravalement de façade, étanchéité), le prix de vente s'en ressentira à la baisse, l'acheteur intégrant ces coûts futurs dans son calcul. De même, une copropriété bien entretenue, avec des charges maîtrisées et aucune grosse réparation à l'horizon, inspirera confiance et permettra de mieux maintenir la valeur du bien.
-                </p>
-                <div className="text-center mb-6">
-                  <Link
-                    href="/actualites/estimation-perier-marseille-8e"
-                    className="cta-button group bg-transparent border-2 px-8 py-4 rounded-lg font-semibold inline-block shadow-lg transition-all flex items-center justify-center gap-2 mx-auto"
-                    style={{ borderColor: '#1a2332', color: '#1a2332' }}
+                <ul className="space-y-2 text-lg text-gray-700 mb-6 ml-6 list-disc">
+                  <li>Le montant exact des charges de copropriété (très scrutées en 2026).</li>
+                  <li>La performance énergétique (DPE), devenue un levier de négociation agressif.</li>
+                  <li>L'état des parties communes de votre immeuble.</li>
+                </ul>
+              </div>
+
+              {/* Encart Conversion */}
+              <div className="mb-12 bg-gray-50 p-8 rounded-lg border-2" style={{ borderColor: '#1a2332' }}>
+                <p className="text-lg text-gray-700 leading-relaxed mb-6 text-center">
+                  Ne vous fiez pas à une estimation automatique. Pour obtenir une analyse basée sur les dernières ventes réelles de votre rue, consultez notre{' '}
+                  <Link 
+                    href="/actualites/estimation-perier-marseille-8e" 
+                    className="text-[#1a2332] underline hover:text-[#D4AF37] transition-colors font-semibold"
                   >
-                    <span>Pour une évaluation précise, faites estimer gratuitement votre appartement à Périer</span>
-                    <svg 
-                      className="w-5 h-5 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 ease-out" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    Service d'Estimation Immobilière Périer
                   </Link>
-                </div>
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  L'exposition et la luminosité sont également des critères valorisants. Un appartement bien exposé (sud ou est/ouest), lumineux, avec une vue dégagée, peut voir sa valeur augmenter de 5 % à 20 % par rapport à un logement sombre donnant sur une cour étroite. La micro-localisation dans le quartier compte également : un appartement situé dans une rue calme et recherchée, proche des commodités, se valorisera mieux qu'un équivalent donnant sur un boulevard passant. Deux adresses à 300 m de distance peuvent afficher plusieurs centaines d'euros d'écart par mètre carré si l'une est plus prisée que l'autre.
+                  . Rapport complet sous 24h.
                 </p>
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  D'autres éléments peuvent également modifier la valeur : la surface totale (les petits appartements ont parfois un m² plus cher), la distribution des pièces, l'année de construction, la présence d'un stationnement privatif, ou encore l'environnement immédiat (présence d'espaces verts, commerces de proximité, standing perçu de la rue). En combinant tous ces facteurs, on comprend pourquoi le prix moyen ne suffit pas à décrire la réalité du marché à Périer.
-                </p>
-              </div>
-
-              {/* Conclusion */}
-              <div className="mb-12">
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  En résumé, Périer reste un quartier attractif avec des prix solides autour de 4 500 €/m² en moyenne, mais la valeur de chaque bien dépend des critères particuliers que nous avons détaillés. Les chiffres présentés donnent un repère crédible et actuel du marché immobilier dans le quartier. Pour traduire ces données en valeur réelle pour votre appartement, il convient de les croiser avec les spécificités de votre logement et, idéalement, de solliciter une analyse personnalisée qui comparera votre bien aux ventes récentes équivalentes dans le quartier.
-                </p>
-                <div className="text-center mb-6">
+                <div className="text-center">
                   <Link
                     href="/actualites/estimation-perier-marseille-8e"
                     className="cta-button group bg-transparent border-2 px-8 py-4 rounded-lg font-semibold inline-block shadow-lg transition-all flex items-center justify-center gap-2 mx-auto"
